@@ -1482,6 +1482,7 @@ a:hover { color: var(--c-accent-strong); }
 .qa summary .icon { transition: transform var(--dur-fast) var(--ease); color: var(--c-ink-3); }
 .qa[open] summary .icon { transform: rotate(90deg); }
 .qa__body { padding-top: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-3); }
+.qa__body > .card--inset { align-self: center; max-width: 100%; }  /* shrink to the dump's width */
 
 .verdict { font-size: var(--fs-xs); font-weight: var(--fw-semibold); min-height: var(--lh-base); }
 .verdict.ok { color: var(--c-correct); } .verdict.bad { color: var(--c-incorrect); }
@@ -1502,9 +1503,6 @@ a:hover { color: var(--c-accent-strong); }
 .state-table .table { min-width: 36rem; }
 .state-table .state-current th, .state-table .state-current td { font-weight: var(--fw-bold); color: var(--c-ink); }
 .state-table tbody tr:not(.state-current) { color: var(--c-ink-3); }
-
-/* Worked answers: the dump floats under the top bar while you move through the questions. */
-.qa-dump { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--sp-2)); z-index: calc(var(--z-sticky) - 1); padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); box-shadow: var(--shadow-2); }
 
 /* Page heading with the theme toggle beside it (no top bar). */
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
@@ -1568,6 +1566,16 @@ a:hover { color: var(--c-accent-strong); }
 
   <section class="section stack">
     <div class="section-head"><div class="section-head__text">
+      <h2>Memory dump</h2>
+      <p class="section-head__desc">The Exercise 4 dump: two PCBs back to back, starting at <span class="mono">0xC0001000</span>. Each byte is coloured by the field it belongs to.</p>
+    </div></div>
+    <div class="card">
+      <div class="dump-wrap"><table class="dump" id="dumpMain"></table></div>
+    </div>
+  </section>
+
+  <section class="section stack">
+    <div class="section-head"><div class="section-head__text">
       <span class="eyebrow">Step 1 of 3</span>
       <h2>Map the struct to byte offsets</h2>
       <p class="section-head__desc">The struct tells you where each field starts and how many bytes it takes: <span class="mono">uint32_t</span> is 4 bytes, <span class="mono">uint64_t</span> is 8.</p>
@@ -1621,10 +1629,6 @@ a:hover { color: var(--c-accent-strong); }
       <h2>Worked answers</h2>
       <p class="section-head__desc">All ten exercise questions. Open one to see the reasoning.</p>
     </div></div>
-    <div class="card qa-dump">
-      <div class="dump-wrap"><table class="dump" id="dumpQa"></table></div>
-      <p class="small muted" id="qaDumpCaption" aria-live="polite">Open a question to highlight its bytes.</p>
-    </div>
     <div class="card card--flush"><ul class="rows" id="qa"></ul></div>
   </section>
 
@@ -1795,27 +1799,14 @@ $('qa').innerHTML = QS.map(([p, fi, label], n) => {
   return `<li class="row c${fi + 1}"><details class="qa" data-q="${n}"><summary>
       <div class="row__main"><span class="row__title">Question ${n + 1}</span><span class="row__meta">Process ${p + 1} · ${label}</span></div>
       <div class="row__aside"><span class="answer">${out.answer}</span>${icon('chevron-right')}</div>
-    </summary><div class="qa__body"><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>${EXTRA[n] ? `<p class="small muted">${EXTRA[n]}</p>` : ''}</div></details></li>`;
+    </summary><div class="qa__body"><div class="card card--inset"><div class="dump-wrap"><table class="dump"></table></div></div><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>${EXTRA[n] ? `<p class="small muted">${EXTRA[n]}</p>` : ''}</div></details></li>`;
 }).join('');
 renderMath($('qa'));
-
-// Floating dump: highlights the bytes of the question most recently opened.
-function showQaDump(n) {
-  if (n == null) {
-    renderDump($('dumpQa'), DUMP, BASE);
-    $('qaDumpCaption').textContent = 'Open a question to highlight its bytes.';
-    return;
-  }
-  const [pcb, field] = QS[n], f = FIELDS[field];
-  renderDump($('dumpQa'), DUMP, BASE, { pcb, field });
-  $('qaDumpCaption').innerHTML = `Question ${n + 1} · PCB ${pcb + 1} · ${fname(field)} at <span class="mono">${hexAddr(BASE + pcb * 32 + f.off)}</span>`;
-}
-$('qa').addEventListener('toggle', e => {
-  if (e.target.open) return showQaDump(+e.target.dataset.q);
-  const stillOpen = [...$('qa').querySelectorAll('details[open]')].pop();
-  showQaDump(stillOpen ? +stillOpen.dataset.q : null);
-}, true);
-showQaDump(null);
+$('qa').querySelectorAll('.qa').forEach(d => {
+  const [pcb, field] = QS[+d.dataset.q];
+  renderDump(d.querySelector('.dump'), DUMP, BASE, { pcb, field });
+});
+renderDump($('dumpMain'), DUMP, BASE);
 
 // Practice
 const PBASE = 0xC0002000;
