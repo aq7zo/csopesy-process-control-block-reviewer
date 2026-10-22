@@ -78,7 +78,7 @@
 
   /* ---- Sizes & widths --------------------------------------------------- */
   --w-page: 72rem;       /* home, results, practice picker */
-  --w-read: 46rem;       /* one question / reading column */
+  --w-read: 48.6875rem;      /* one question / reading column; fits all six Step 3 field buttons on one line */
   --w-sidebar: 18.5rem;  /* exam navigator, file list */
   --w-sidepanel: 15rem;  /* docked practice session panel (left of the centered question) */
   --w-dialog: 34rem;
@@ -339,7 +339,7 @@ a:hover { color: var(--c-accent-strong); }
 .skip-link:focus { top: var(--sp-2); }
 
 /* 2 ─ Layout & utilities ───────────────────────────────────────────────── */
-.main { padding-block: var(--sp-6) var(--sp-10); }
+.main { padding-block: var(--sp-6) 0; }
 
 .page {
   width: 100%;
@@ -793,6 +793,8 @@ a:hover { color: var(--c-accent-strong); }
 
 /* Ghost text buttons divided by a | rule; the active one gets full ink contrast */
 .filters { display: flex; flex-wrap: wrap; align-items: center; }
+.filters--row { flex-wrap: nowrap; overflow-x: auto; }
+.filters--row > .filter { flex: none; white-space: nowrap; }
 .filter {
   position: relative; display: inline-flex; align-items: center; gap: var(--sp-2); min-height: var(--h-control-sm);
   padding: var(--sp-1) var(--sp-3); border: 0; border-radius: var(--radius-sm); background: transparent;
@@ -1454,7 +1456,7 @@ a:hover { color: var(--c-accent-strong); }
 .field-name { font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-size: var(--fs-sm); font-weight: var(--fw-semibold); color: var(--c); white-space: nowrap; }
 .mono { font-family: var(--font-sans); font-variant-numeric: tabular-nums slashed-zero; }
 
-.dump { border-collapse: separate; border-spacing: var(--sp-px); font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.dump { margin-inline: auto; border-collapse: separate; border-spacing: var(--sp-px); font-family: var(--font-sans); font-variant-numeric: tabular-nums; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
 .dump th { color: var(--c-ink-3); font-weight: var(--fw-regular); font-size: var(--fs-xs); padding: var(--sp-1); text-align: center; }
 .dump-wrap { overflow-x: auto; min-width: 0; }
 .dump td { padding: var(--sp-2) var(--sp-1); text-align: center; border-radius: var(--radius-xs); white-space: nowrap; }
@@ -1608,7 +1610,7 @@ a:hover { color: var(--c-accent-strong); }
     </div></div>
     <div class="card stack">
       <div class="filters" role="group" aria-label="Choose PCB" id="pcbBtns"></div>
-      <div class="filters" role="group" aria-label="Choose field" id="fieldBtns"></div>
+      <div class="filters filters--row" role="group" aria-label="Choose field" id="fieldBtns"></div>
       <div class="dump-wrap"><table class="dump" id="dumpExplore"></table></div>
       <ol class="steps" id="exploreSteps"></ol>
     </div>
