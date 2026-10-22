@@ -1790,6 +1790,13 @@ renderExplorer();
 
 const QS = [[0, 0, 'process_id'], [0, 1, 'state'], [0, 2, 'program counter'], [0, 4, 'open files'], [0, 5, 'parent PCB address'],
             [1, 0, 'process_id'], [1, 1, 'state'], [1, 2, 'program counter'], [1, 4, 'open files'], [1, 5, 'parent PCB address']];
+const PROMPT = {
+  0: o => `What is the ${o} process's process_id? (decimal)`,
+  1: o => `What is the ${o} process's current state?`,
+  2: o => `What is the ${o} process's program counter? (16-digit hex)`,
+  4: o => `How many open files does the ${o} process have?`,
+  5: o => `What is the ${o} process's parent PCB address? (16-digit hex)`,
+};
 const EXTRA = {
   8: 'A terminated process has had its files closed by the OS, so 0 makes sense.',
   9: '0xC0001000 is the start address of PCB 1, so process 2050 is a child of process 2048.',
@@ -1797,7 +1804,7 @@ const EXTRA = {
 $('qa').innerHTML = QS.map(([p, fi, label], n) => {
   const { out, steps } = decodeSteps(DUMP, BASE, p, fi);
   return `<li class="row c${fi + 1}"><details class="qa" data-q="${n}"><summary>
-      <div class="row__main"><span class="row__title">Question ${n + 1}</span><span class="row__meta">Process ${p + 1} · ${label}</span></div>
+      <div class="row__main"><span class="row__title">Question ${n + 1}</span><span class="row__meta">${PROMPT[fi](p ? '2nd' : '1st')}</span></div>
       <div class="row__aside"><span class="answer">${out.answer}</span>${icon('chevron-right')}</div>
     </summary><div class="qa__body"><div class="card card--inset"><div class="dump-wrap"><table class="dump"></table></div></div><ol class="steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>${EXTRA[n] ? `<p class="small muted">${EXTRA[n]}</p>` : ''}</div></details></li>`;
 }).join('');
